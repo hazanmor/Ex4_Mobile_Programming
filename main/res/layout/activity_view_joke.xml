@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activityViewJoke"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.owner.myapplication.ActivityViewJoke">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/holo_blue_light"
+        android:weightSum="1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <Button
+                android:text="@string/edit_joke"
+                android:layout_width="99dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="17dp"
+                android:layout_marginEnd="17dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:onClick="EnableEditJoke"
+                android:id="@+id/button_edit_joke" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="249dp">
+
+            <EditText
+                android:background="@drawable/customborder"
+                android:id="@+id/ShowJoke"
+                android:layout_width="match_parent"
+
+                android:layout_height="227dp">
+
+            </EditText>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            //space
+            <LinearLayout
+                android:layout_width="20dp"
+                android:layout_height="match_parent">
+
+            </LinearLayout>
+
+            // Layout of button LIke
+
+            <LinearLayout
+                android:id="@+id/buttonLikeLayout"
+                android:layout_width="90dp"
+                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:background="@android:color/holo_red_light">
+
+                <ImageButton
+                    android:layout_width="70dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/imglike"
+                    android:id="@+id/imageButton2"
+                    android:onClick="clickedLike"
+                    />
+            </LinearLayout>
+
+            //space
+            <LinearLayout
+                android:layout_width="20dp"
+                android:layout_height="match_parent">
+
+            </LinearLayout>
+
+            // Layout of button DontCare
+            <LinearLayout
+                android:id="@+id/buttonDontCareLayout"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.14"
+                android:orientation="vertical"
+                android:weightSum="1">
+
+                <ImageButton
+                    android:layout_width="70dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/imgdontcare"
+                    android:id="@+id/imageButton3"
+                    android:layout_gravity="center_horizontal"
+                    android:onClick="clickedDontCare"/>
+            </LinearLayout>
+
+            //space
+            <LinearLayout
+                android:layout_width="20dp"
+                android:layout_height="match_parent">
+
+            </LinearLayout>
+            // Layout of button DisLike
+            <LinearLayout
+                android:id="@+id/buttonDisLikeLayout"
+                android:layout_width="90dp"
+                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:background="@android:color/holo_green_light"
+                android:layout_weight="0.57">
+
+                <ImageButton
+                    android:layout_width="70dp"
+                    android:layout_height="65dp"
+                    android:src="@drawable/imgdislike"
+
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/imageButton"
+                    android:background="@android:color/holo_orange_light"
+                    android:onClick="clickedDisLike"/>
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:orientation="horizontal"
+            android:weightSum="1">
+// new button
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/joke"
+              />
+
+            <Button
+                android:text="@string/done_joke"
+                android:layout_width="99dp"
+                android:layout_height="90dp"
+                android:layout_marginRight="17dp"
+                android:layout_marginEnd="17dp"
+                android:id="@+id/button3"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:onClick="EditJoke"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

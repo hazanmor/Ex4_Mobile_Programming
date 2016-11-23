@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mobile Programming : Ex3</string>
+    <string name="new_joke">New Joke</string>
+    <string name="write_joke">Write a Joke</string>
+    <string name="write_date">Enter Date</string>
+    <string name="write_author">Enter Author\'s Name</string>
+    <string name="enter_date">Please Choose Date of Joke\'s invention</string>
+    <string name="add_new_joke">ADD</string>
+    <string name="edit_joke">Edit Joke</string>
+    <string name="hint_message">text to pass to screen 2</string>
+    <string name="edit_message2">text to pass to screen 3</string>
+    <string name="button_send">Add Joke</string>
+    <string name="button_send2">Next</string>
+    <string name="button_send3">Save</string>
+    <string name="Activity_Main">Activity Main</string>
+    <string name="no_jokes">No jokes.... click add button to add more jokes</string>
+
+    <string name="done_joke">Done Editing Joke</string>
+
+
+</resources>

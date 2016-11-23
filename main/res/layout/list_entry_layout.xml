@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/holo_blue_light"
+    android:orientation="horizontal"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:layout_width="262dp"
+        android:layout_height="60dp"
+        android:background="@drawable/customborder">
+        <TextView
+            android:id="@+id/ListTextView01"
+
+            android:layout_width="wrap_content"
+            android:layout_height="68dp"
+            android:text="text text"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:singleLine="false"
+            android:textSize="20dip">
+        </TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp">
+        <TextView
+            android:id="@+id/ListTextView02"
+            android:layout_width="match_parent"
+            android:layout_height="57dp"
+            android:layout_marginLeft="5dip"
+            android:textSize="20dip"
+            android:text="Like" >
+        </TextView>
+
+    </LinearLayout>
+
+
+
+        <TextView
+            android:id="@+id/ListTextView03"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dip"
+            android:textSize="20dip" >
+        </TextView>
+
+            <TextView
+                android:id="@+id/ListTextView04"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dip"
+                android:textSize="20dip" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/ListTextView05"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dip"
+                android:textSize="20dip" >
+            </TextView>
+
+</LinearLayout>
