@@ -4,9 +4,10 @@
     android:id="@+id/activityViewJoke"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.owner.myapplication.ActivityViewJoke">
+    tools:context="com.example.barlesh.myapplication.ActivityViewJoke">
 
     <LinearLayout
+        android:id="@+id/view_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"

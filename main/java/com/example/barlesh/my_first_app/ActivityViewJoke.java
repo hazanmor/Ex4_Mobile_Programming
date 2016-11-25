@@ -3,16 +3,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.content.Context;
-
-
+import android.widget.Toast;
 
 
 public class ActivityViewJoke extends AppCompatActivity {
@@ -22,6 +25,7 @@ public class ActivityViewJoke extends AppCompatActivity {
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs";
 
+    private Menu mMenu;
 
     // deffines
     private static final String LAST_VIEW = "last_view";
@@ -35,6 +39,11 @@ public class ActivityViewJoke extends AppCompatActivity {
     private static final String ACTMAIN_TO_ACTVIEW_LIKE = "main_to_active_like";
     private static final String ACTVIEW_TO_ACTMAIN_JOKE = "view_to_main_joke";
     private static final String ACTVIEW_TO_ACTMAIN_LIKE = "view_to_main_like";
+
+    private static final String BG_VIEW = "background_view";
+    private static final String BG_BLUE = "bg_blue";
+    private static final String BG_GREEN = "bg_green";
+    private static final String BG_RED = "bg_red";
 
     private static final String L_DONTCARE = "dont_care";
     private static final String L_LIKE = "like";
@@ -53,6 +62,7 @@ public class ActivityViewJoke extends AppCompatActivity {
 
         setContentView(R.layout.activity_view_joke);
 
+        print_background();
 
 
         // get joke from sharedpreferences
@@ -156,6 +166,32 @@ public class ActivityViewJoke extends AppCompatActivity {
     }
 
 
+
+    public void change_background(String BG_STR){
+        set_background(BG_STR);
+        print_background();
+    }
+
+    public void set_background(String BG_STR){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(BG_VIEW, BG_STR);
+        editor.commit();
+    }
+
+
+    public void print_background(){
+        LinearLayout LL = (LinearLayout)findViewById(R.id.view_layout);;
+        String bg = sharedpreferences.getString(BG_VIEW, null);
+        if( bg== null) { return; }
+        if( BG_BLUE.compareTo(bg) == 0 ) { LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppBlue) ); Log.d(TAG,"print_bg:blue"); return; }
+        if( BG_RED.compareTo(bg) == 0 ) { LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppRed) ); Log.d(TAG,"print_bg:red"); return; }
+        if( BG_GREEN.compareTo(bg) == 0 ) { LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppGreen) ); Log.d(TAG,"print_bg:green"); return; }
+
+
+    }
+
+
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -211,6 +247,56 @@ public class ActivityViewJoke extends AppCompatActivity {
         editor.commit();
         editor.putString(ACTMAIN_TO_ACTVIEW_LIKE, null);
         editor.commit();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu);
+
+        // Hold on to this
+        mMenu = menu;
+
+        // Inflate the currently selected menu XML resource.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_partial, mMenu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+
+            case R.id.item_Exit:
+                Toast.makeText(this, "Exit app!!!!", Toast.LENGTH_SHORT).show();
+                return true;
+            // background color change
+            case R.id.item_bg_blue2:
+                Log.d(TAG, "item_bg_blue");
+                change_background(BG_BLUE);
+                return true;
+            case R.id.item_bg_red2:
+                Log.d(TAG, "item_bg_red");
+                change_background(BG_RED);
+                return true;
+            case R.id.item_bg_green2:
+                Log.d(TAG, "item_bg_green");
+                change_background(BG_GREEN);
+                return true;
+            // Generic catch all for all the other menu resources
+            default:
+                // Don't toast text when a submenu is clicked
+                if (!item.hasSubMenu()) {
+                    Log.d(TAG, "other");
+                    Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                break;
+        }
+
+        return false;
     }
 
 

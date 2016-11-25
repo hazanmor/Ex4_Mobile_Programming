@@ -1,20 +1,28 @@
 package com.example.barlesh.my_first_app;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.HashMap;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.view.View;
@@ -22,6 +30,7 @@ import android.widget.EditText;
 import android.content.SharedPreferences;
 import android.content.Context;
 import android.app.ListActivity;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,13 +59,17 @@ class Joke{
 }
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     //shared variables
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
     // defines
     // inter activities deffines
     private static final String LAST_VIEW = "last_view";
+    private static final String BG_MAIN = "background";
+    private static final String BG_BLUE = "bg_blue";
+    private static final String BG_GREEN = "bg_green";
+    private static final String BG_RED = "bg_red";
     private static final String ACTIVITY_MAIN = "main_activity";
     private static final String ACTIVITY_ADD= "add_activity";
     private static final String ACTIVITY_VIEW = "view_activity";
@@ -86,6 +99,12 @@ public class MainActivity extends Activity {
     ArrayList<Joke> jokes;
 
 
+    /**
+     * Safe to hold on to this.
+     */
+    private Menu mMenu;
+
+
 
     public final static String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     //public final static String EXTRA_MESSAGE2 = "com.example.myfirstapp.MESSAGE2";
@@ -96,19 +115,25 @@ public class MainActivity extends Activity {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
 
+        print_background();
+
+        /**
+         * set list of jikes
+         */
         jokes = new ArrayList<Joke>();
-        //jokes.add(new Joke("joke number1", "Bar", "12.12.12"));
+        jokes.add(new Joke("joke number1", "Bar", "12.12.12"));
+        jokes.add(new Joke("joke number2", "anat", "12.12.12"));
+        jokes.add(new Joke("joke number3", "mor", "12.12.12"));
         lv = (ListView)findViewById(android.R.id.list);
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-                Log.d("class3", "onListItemClick " + position);
                 ToViewJoke(position);
-                //Toast.makeText(MainActivity.this,jokes.get(position).get_joke() +" "+ jokes.get(position).get_author(), Toast.LENGTH_LONG).show();
+                //Toast.m akeText(MainActivity.this,jokes.get(position).get_joke() +" "+ jokes.get(position).get_author(), Toast.LENGTH_LONG).show();
             }
         });
-
         print_jokes_to_screen();
+
 
         // set current view at sharedreferances
         set_last_view();
@@ -119,7 +144,7 @@ public class MainActivity extends Activity {
         // Add Joke Butten
         // take us to add joke activity
         // no information provided
-        Button customList = (Button)findViewById(R.id.buttonToAddJoke);
+        /*Button customList = (Button)findViewById(R.id.buttonToAddJoke);
         customList.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
@@ -127,10 +152,95 @@ public class MainActivity extends Activity {
 
                 startActivity(intent);
             }
-        });
+        });*/
 
 
     }
+
+    public void change_background(String BG_STR){
+        set_background(BG_STR);
+        print_background();
+    }
+
+    public void set_background(String BG_STR){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(BG_MAIN, BG_STR);
+        editor.commit();
+    }
+
+
+    public void print_background(){
+        LinearLayout LL = (LinearLayout)findViewById(R.id.main_layout);;
+        String bg = sharedpreferences.getString(BG_MAIN, null);
+        if( bg== null) { return; }
+        if( BG_BLUE.compareTo(bg) == 0 ) { LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppBlue) ); return; }
+        if( BG_RED.compareTo(bg) == 0 ) { LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppRed) ); return; }
+        if( BG_GREEN.compareTo(bg) == 0 ) { LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppGreen) ); return; }
+
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu);
+
+        // Hold on to this
+        mMenu = menu;
+
+        // Inflate the currently selected menu XML resource.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_full, mMenu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //super.onOptionsItemSelected(item);
+        LinearLayout LL = (LinearLayout)findViewById(R.id.main_layout);;
+        switch (item.getItemId()) {
+
+            case R.id.item_add_joke:
+                Toast.makeText(this, "add new joke!!!!", Toast.LENGTH_SHORT).show();
+                TOaddNewJoke();
+                return true;
+            case R.id.item_Exit:
+                Toast.makeText(this, "Exit app!!!!", Toast.LENGTH_SHORT).show();
+                return true;
+            // background color change
+            case R.id.item_bg_blue:
+                Log.d(TAG, "item_bg_blue");
+                //LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppBlue) );
+                change_background(BG_BLUE);
+                return true;
+            case R.id.item_bg_red:
+                Log.d(TAG, "item_bg_red");
+                //LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppRed) );
+                change_background(BG_RED);
+                return true;
+            case R.id.item_bg_green:
+                Log.d(TAG, "item_bg_green");
+                //LL.setBackgroundColor( ContextCompat.getColor(this, R.color.AppGreen) );
+                change_background(BG_GREEN);
+                return true;
+            // Generic catch all for all the other menu resources
+            default:
+                // Don't toast text when a submenu is clicked
+                if (!item.hasSubMenu()) {
+                    Log.d(TAG, "other");
+                    Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+
+
+
 
     public void print_jokes_to_screen(){
         CustomAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
@@ -165,6 +275,10 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+    public void TOaddNewJoke(){
+        Intent intent = new Intent(this, ActivityAddJoke.class);
+        startActivity(intent);
+    }
     public void TOaddNewJoke(View view){
         Intent intent = new Intent(this, ActivityAddJoke.class);
         startActivity(intent);
@@ -275,6 +389,8 @@ public class MainActivity extends Activity {
     }
 
 
+
+
     class CustomAdapter extends ArrayAdapter<Joke> {
 
         Context context;
@@ -343,7 +459,13 @@ public class MainActivity extends Activity {
         }
     }
 
+
+
 }
+
+
+
+
 
 
 

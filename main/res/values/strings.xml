@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mobile Programming : Ex3</string>
+    <string name="app_name">Mobile Programming : Ex4</string>
     <string name="new_joke">New Joke</string>
     <string name="write_joke">Write a Joke</string>
     <string name="write_date">Enter Date</string>
