@@ -1,4 +1,7 @@
 package com.example.barlesh.my_first_app;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -11,7 +14,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.content.Context;
@@ -81,7 +86,63 @@ public class ActivityViewJoke extends AppCompatActivity {
         set_last_view();
 
         reset_shared_params();
+        Button button=(Button ) findViewById(R.id.button3);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText editText = (EditText) findViewById(R.id.ShowJoke);
+                String joke = editText.getText().toString();
+                showDialog(joke.length());
+            }
+        });
 
+
+
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        int size;// 0 - the joke is too short.1- do you want to save?
+        if(id<10)
+        {//Alert dialog notifying that the joke is too short. 1- do you want to save the joke?
+            size=0;
+        }//Alert dialog notifying that the joke is too short
+        else
+        {
+            size=1; // Alert dialog “Do you want to save the Joke ?”
+        }
+        id=size;
+        switch (id) {
+            case 1:// Alert dialog “Do you want to save the Joke ?”
+                return new AlertDialog.Builder(ActivityViewJoke.this)
+                        .setIcon(R.drawable.alert_dialog_icon)
+                        .setTitle(R.string.alert_dialog_two_buttons_title)
+                        .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                EditJoke();
+					/* User clicked OK so do some stuff */
+                            }
+                        })
+                        .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                finish();
+
+					/* User clicked Cancel so do some stuff */
+                            }
+                        })
+                        .create();
+
+            case 0://CUSTOM_DIALOG:
+                Dialog dialog = new Dialog(this);
+                dialog.setContentView(R.layout.custom_dialog);
+                dialog.setTitle("Custom Dialog");
+                TextView text = (TextView) dialog.findViewById(R.id.text);
+                text.setText("The joke is too short!");
+                ImageView image = (ImageView) dialog.findViewById(R.id.image);
+                image.setImageResource(R.drawable.alert_dialog_icon);
+                return dialog;
+        }
+        return null;
     }
 
 
@@ -91,7 +152,7 @@ public class ActivityViewJoke extends AppCompatActivity {
     }
 
     // once edit buttec clicked, send eddited data back to main activity
-    public void EditJoke(View view){
+    public void EditJoke(){
         EditText editText = (EditText) findViewById(R.id.ShowJoke);
         String J = editText.getText().toString();
         SharedPreferences.Editor editor = sharedpreferences.edit();

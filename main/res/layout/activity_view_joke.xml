@@ -4,7 +4,7 @@
     android:id="@+id/activityViewJoke"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.barlesh.myapplication.ActivityViewJoke">
+    tools:context="com.example.barlesh.my_first_app.ActivityViewJoke">
 
     <LinearLayout
         android:id="@+id/view_layout"
@@ -14,7 +14,6 @@
         android:background="@android:color/holo_blue_light"
         android:weightSum="1"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
         <RelativeLayout

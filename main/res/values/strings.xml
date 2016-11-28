@@ -17,6 +17,11 @@
     <string name="no_jokes">No jokes.... click add button to add more jokes</string>
 
     <string name="done_joke">Done Editing Joke</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="alert_dialog_two_buttons_title">Do you want to save the Joke ?</string>
+    <string name="alert_dialog_yes">yes</string>
+    <string name="alert_dialog_no">no</string>
+
 
 
 </resources>

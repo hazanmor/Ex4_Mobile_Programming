@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +34,9 @@ import android.app.ListActivity;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+
 
 class Joke{
     private String Joke_str;
@@ -114,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
-
         print_background();
 
         /**
@@ -122,10 +125,11 @@ public class MainActivity extends AppCompatActivity {
          */
         jokes = new ArrayList<Joke>();
         jokes.add(new Joke("joke number1", "Bar", "12.12.12"));
-        jokes.add(new Joke("joke number2", "anat", "12.12.12"));
+        jokes.add(new Joke("Q: Why was the math book sad? A: Because it had too many problems. \n" +
+                "\n" , "anat", "12.12.12"));
         jokes.add(new Joke("joke number3", "mor", "12.12.12"));
         lv = (ListView)findViewById(android.R.id.list);
-
+        registerForContextMenu(lv);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
                 ToViewJoke(position);
@@ -239,18 +243,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+    }
+
+
+
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int index = info.position;
+        switch (item.getItemId()) {
+            case R.id.edit:
+                ToViewJoke(index);
+                return true;
+            case R.id.delete:
+                TODeleteJoke(index);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+
 
 
 
     public void print_jokes_to_screen(){
         CustomAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
         lv.setAdapter(adapter);
-
-
-
-
-
-
     }
 
 
@@ -289,6 +314,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(LAST_VIEW, ACTIVITY_MAIN);
         editor.commit();
+    }
+    public void TODeleteJoke(int pos)
+    {
+       jokes.remove(pos);
+        print_jokes_to_screen();
+
     }
 
     /** Called when the user clicks the Send button */
@@ -412,14 +443,14 @@ public class MainActivity extends AppCompatActivity {
 
         public View getView(final int position, View convertView, ViewGroup parent) {
 
-            MainActivity.CustomAdapter.ViewHolder holder = null;
+            ViewHolder holder = null;
 
             if (convertView == null) {
 
                 //item_list
                 convertView = mInflater.inflate(R.layout.list_item_icon, null);
 
-                holder = new MainActivity.CustomAdapter.ViewHolder();
+                holder = new ViewHolder();
 
                 //fill the views
                 holder.joke = (TextView) convertView.findViewById(R.id.ListTextView01);
@@ -431,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
             else {
                 // Get the ViewHolder back to get fast access to the TextView
                 // and the ImageView.
-                holder = (MainActivity.CustomAdapter.ViewHolder) convertView.getTag();//
+                holder = (ViewHolder) convertView.getTag();//
             }
 
             int icon2 = 0;
