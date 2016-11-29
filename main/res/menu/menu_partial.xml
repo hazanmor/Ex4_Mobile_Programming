@@ -38,6 +38,7 @@
 
     </item>
 
-    <item android:title="Exit" />
+    <item android:title="Exit"
+        android:id="@+id/item_Exit2"/>
 
 </menu>

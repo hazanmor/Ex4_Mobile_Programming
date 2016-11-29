@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ExitContextMenu">
+    <item android:id="@+id/Exit_confirm" android:title="Exit"></item>
+    <item android:id="@+id/Exit_cancel" android:title="Stay"></item>
+
+</menu>

@@ -26,15 +26,23 @@
 
             <item android:id="@+id/item_bg_blue"
                 android:title="Blue"
-                android:icon="@android:color/holo_blue_dark" />
+                android:icon="@drawable/blue"
+
+            />
 
             <item android:id="@+id/item_bg_green"
                 android:title="Green"
-                android:icon="@android:color/holo_green_dark" />
+                android:icon="@drawable/green"
+
+                />
 
             <item android:id="@+id/item_bg_red"
                 android:title="Red"
-                android:icon="@android:color/holo_red_dark" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:icon="@drawable/red"
+                
+            />
 
         </menu>
 

@@ -6,8 +6,12 @@ import java.util.Date;
 import java.util.HashMap;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.ClipData;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -88,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Activity Main";
 
+    private static final String SHUTDOWN = "shutdown";
+    private static final String SHUTDOWN_REG_RUN = "shutdown_no";
+    private static final String SHUTDOWN_FOLD = "shutdown_yes";
+
 
     private static final String JOKE = "joke";
     private static final String PUNCH_LINE = "punch_line";
@@ -101,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
     ListView lv;
     ArrayList<Joke> jokes;
+    CustomAdapter mainAdapter;
 
 
     /**
@@ -118,26 +127,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
+
+        Log.d(TAG, "BEFOR PRINT_BG");
         print_background();
 
         /**
          * set list of jikes
          */
         jokes = new ArrayList<Joke>();
-        jokes.add(new Joke("joke number1", "Bar", "12.12.12"));
-        jokes.add(new Joke("Q: Why was the math book sad? A: Because it had too many problems. \n" +
-                "\n" , "anat", "12.12.12"));
-        jokes.add(new Joke("joke number3", "mor", "12.12.12"));
+        //jokes.add(new Joke("joke number1", "Bar", "12.12.12"));
+        /*jokes.add(new Joke("Q: Why was the math book sad? A: Because it had too many problems. \n" +
+                "\n" , "anat", "12.12.12"));*/
+        //jokes.add(new Joke("joke number3", "mor", "12.12.12"));
         lv = (ListView)findViewById(android.R.id.list);
         registerForContextMenu(lv);
+        // b = (Button) findViewById(R.id.item_Exit);
+        //registerForContextMenu( b );
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
                 ToViewJoke(position);
                 //Toast.m akeText(MainActivity.this,jokes.get(position).get_joke() +" "+ jokes.get(position).get_author(), Toast.LENGTH_LONG).show();
             }
         });
-        print_jokes_to_screen();
 
+
+       // print_jokes_to_screen();
+        TextView  tv = (TextView)findViewById(R.id.main_act_text);
+        tv.setText(R.string.no_jokes);
+        Log.d(TAG, "after set text");
+
+        mainAdapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
+        Log.d(TAG, "BEFOR set adapter");
+        lv.setAdapter(mainAdapter);
 
         // set current view at sharedreferances
         set_last_view();
@@ -159,6 +181,19 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
+    }
+
+    void exit_app(){
+        reset_exit_flag();
+        finish();
+
+    }
+
+    void reset_exit_flag(){
+        // set sutdown flag to no
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(SHUTDOWN, SHUTDOWN_REG_RUN);
+        editor.commit();
     }
 
     public void change_background(String BG_STR){
@@ -199,6 +234,28 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    void create_exit_dialog(){
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this)
+                .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(R.string.edit_alert_dialog_two_buttons_title)
+                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "edit");
+                        exit_app();
+					/* User clicked OK so do some stuff */
+                    }
+                })
+                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "do nothing");
+
+					/* User clicked Cancel so do some stuff */
+                    }
+                });
+        Dialog saveJokeDialog = builder.create();
+        saveJokeDialog.show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //super.onOptionsItemSelected(item);
@@ -210,7 +267,12 @@ public class MainActivity extends AppCompatActivity {
                 TOaddNewJoke();
                 return true;
             case R.id.item_Exit:
+                Log.d(TAG, "onOptionsItemSelected: item clicked:item_Exit");
                 Toast.makeText(this, "Exit app!!!!", Toast.LENGTH_SHORT).show();
+                create_exit_dialog();
+
+                // pop exit verification dialog
+
                 return true;
             // background color change
             case R.id.item_bg_blue:
@@ -243,11 +305,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    // take care of all context view registered for currrent activity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        Log.d(TAG,"onCreateContextMenu");
         super.onCreateContextMenu(menu, v, menuInfo);
+        Log.d(TAG, "onCreateContextMenu, view is:" + v.toString());
+
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu, menu);
+        switch (v.getId() ){
+            case R.id.fake_button:
+                Log.d(TAG, "onCreateContextMenu: fake_button");
+                inflater.inflate(R.menu.exit_confirm_context_menu, menu);
+                break;
+            case android.R.id.list:
+                 inflater.inflate(R.menu.context_menu, menu);
+                break;
+        }
+
     }
 
 
@@ -255,14 +331,28 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        int index = info.position;
+        AdapterView.AdapterContextMenuInfo info;
+        int index;
+        Log.d(TAG, "onContextItemSelected:");
+
+        Log.d(TAG, "onContextItemSelected:item's id:" + item.getItemId());
         switch (item.getItemId()) {
             case R.id.edit:
+                info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                index = info.position;
                 ToViewJoke(index);
                 return true;
             case R.id.delete:
+                 info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                 index = info.position;
                 TODeleteJoke(index);
+                return true;
+            case R.id.Exit_confirm:
+                Log.d(TAG, "onContextItemSelected:Exit_confirm");
+                exit_app();
+                return true;
+            case R.id.Exit_cancel:
+                Log.d(TAG, "onContextItemSelected:Exit_cancel");
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -274,8 +364,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void print_jokes_to_screen(){
-        CustomAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
-        lv.setAdapter(adapter);
+        TextView tv;
+        if ( jokes.size() == 0 ){
+            tv = (TextView)findViewById(R.id.main_act_text);
+            tv.setText(R.string.no_jokes);
+        }else {
+            tv = (TextView)findViewById(R.id.main_act_text);
+            Log.d(TAG,"jokes.size > 0");
+            tv.setText(R.string.info);
+        }
+        mainAdapter.notifyDataSetChanged();
+        //mainAdapter.setNotifyOnChange(true);
+        //CustomAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
+        //lv.setAdapter(mainAdapter);
     }
 
 
@@ -342,6 +443,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
+        // get SHUTDOWN flag, if deffined FOLD, close mainActivity
+            String shutown = sharedpreferences.getString(SHUTDOWN, null);
+            if( shutown != null && ( shutown.compareTo(SHUTDOWN_FOLD) ==0 ) ){
+                // reset flag
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(SHUTDOWN, null);
+                editor.commit();
+
+                finish();
+            }
+
+
         String lastView = sharedpreferences.getString(LAST_VIEW, null);
         Log.d(TAG ,"onResume()");
         Log.d(TAG ,"last view was:" + lastView);
@@ -356,7 +469,9 @@ public class MainActivity extends AppCompatActivity {
 
                 // all strings were given
             }else{
+                Log.d(TAG, "adding joke");
                 jokes.add(new Joke(Joke, Author, Date));
+                Log.d(TAG, "before printing to screeen");
                 print_jokes_to_screen();
                 reset_add_params();
             }

@@ -14,14 +14,21 @@
     <string name="button_send2">Next</string>
     <string name="button_send3">Save</string>
     <string name="Activity_Main">Activity Main</string>
-    <string name="no_jokes">No jokes.... click add button to add more jokes</string>
+    <string name="no_jokes">No jokes. Click option menu to add more jokes</string>
+    <string name="info">Click option Menu to Change BG or exit</string>
 
     <string name="done_joke">Done Editing Joke</string>
     <string name="title_activity_main2">Main2Activity</string>
-    <string name="alert_dialog_two_buttons_title">Do you want to save the Joke ?</string>
+    <string name="edit_alert_dialog_two_buttons_title">Do you want to save the Joke ?</string>
+    <string name="exit_alert_dialog_two_buttons_title">Do you really want to exit ?</string>
+
+    <string name="warning">Warning</string>
+
     <string name="alert_dialog_yes">yes</string>
     <string name="alert_dialog_no">no</string>
 
+    <string name="alert_dialog_exit">EXIT</string>
+    <string name="alert_dialog_cancel_exit">Dont Exit</string>
 
 
 </resources>

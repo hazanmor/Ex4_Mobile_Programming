@@ -2,7 +2,6 @@ package com.example.barlesh.my_first_app;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,8 +18,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.content.Context;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -44,6 +44,10 @@ public class ActivityViewJoke extends AppCompatActivity {
     private static final String ACTMAIN_TO_ACTVIEW_LIKE = "main_to_active_like";
     private static final String ACTVIEW_TO_ACTMAIN_JOKE = "view_to_main_joke";
     private static final String ACTVIEW_TO_ACTMAIN_LIKE = "view_to_main_like";
+
+    private static final String SHUTDOWN = "shutdown";
+    private static final String SHUTDOWN_REG_RUN = "shutdown_no";
+    private static final String SHUTDOWN_FOLD = "shutdown_yes";
 
     private static final String BG_VIEW = "background_view";
     private static final String BG_BLUE = "bg_blue";
@@ -86,64 +90,84 @@ public class ActivityViewJoke extends AppCompatActivity {
         set_last_view();
 
         reset_shared_params();
-        Button button=(Button ) findViewById(R.id.button3);
+        Button button=(Button ) findViewById(R.id.done_editing_joke_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EditText editText = (EditText) findViewById(R.id.ShowJoke);
                 String joke = editText.getText().toString();
-                showDialog(joke.length());
+
+                if (joke.length() < 10) { create_edit_warning_dialog(); }
+                else {create_edit_dialog();}
+
+
+
             }
         });
 
 
-
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        int size;// 0 - the joke is too short.1- do you want to save?
-        if(id<10)
-        {//Alert dialog notifying that the joke is too short. 1- do you want to save the joke?
-            size=0;
-        }//Alert dialog notifying that the joke is too short
-        else
-        {
-            size=1; // Alert dialog “Do you want to save the Joke ?”
-        }
-        id=size;
-        switch (id) {
-            case 1:// Alert dialog “Do you want to save the Joke ?”
-                return new AlertDialog.Builder(ActivityViewJoke.this)
-                        .setIcon(R.drawable.alert_dialog_icon)
-                        .setTitle(R.string.alert_dialog_two_buttons_title)
-                        .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                EditJoke();
+    void create_edit_warning_dialog(){
+        Dialog dialog = new Dialog(ActivityViewJoke.this);
+        dialog.setContentView(R.layout.custom_dialog);
+        dialog.setTitle(R.string.warning);
+        TextView text = (TextView) dialog.findViewById(R.id.text);
+        text.setText("The joke is too short!");
+        ImageView image = (ImageView) dialog.findViewById(R.id.image);
+        image.setImageResource(R.drawable.alert_dialog_icon);
+        dialog.show();
+    }
+
+    void create_edit_dialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ActivityViewJoke.this)
+                .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(R.string.edit_alert_dialog_two_buttons_title)
+                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        EditJoke();
 					/* User clicked OK so do some stuff */
-                            }
-                        })
-                        .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                finish();
+                    }
+                })
+                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "do nothing");
+                        finish();
 
 					/* User clicked Cancel so do some stuff */
-                            }
-                        })
-                        .create();
-
-            case 0://CUSTOM_DIALOG:
-                Dialog dialog = new Dialog(this);
-                dialog.setContentView(R.layout.custom_dialog);
-                dialog.setTitle("Custom Dialog");
-                TextView text = (TextView) dialog.findViewById(R.id.text);
-                text.setText("The joke is too short!");
-                ImageView image = (ImageView) dialog.findViewById(R.id.image);
-                image.setImageResource(R.drawable.alert_dialog_icon);
-                return dialog;
-        }
-        return null;
+                    }
+                });
+        Dialog saveJokeDialog = builder.create();
+        saveJokeDialog.show();
     }
+
+    /**
+     * TODOOOOO
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
+    // take care of all context view registered for currrent activity
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        Log.d(TAG,"onCreateContextMenu");
+        super.onCreateContextMenu(menu, v, menuInfo);
+        Log.d(TAG, "onCreateContextMenu, view is:" + v.toString());
+
+        MenuInflater inflater = getMenuInflater();
+        switch (v.getId() ){
+            case R.id.fake_button:
+                Log.d(TAG, "onCreateContextMenu: fake_button");
+                inflater.inflate(R.menu.exit_confirm_context_menu, menu);
+                break;
+            case android.R.id.list:
+                inflater.inflate(R.menu.context_menu, menu);
+                break;
+        }
+
+    }
+
+
 
 
     public void EnableEditJoke(View view){
@@ -167,6 +191,9 @@ public class ActivityViewJoke extends AppCompatActivity {
 
 
     }
+
+
+
 
     public void clickedDisLike(View view){
         set_like(L_DISLIKE);
@@ -251,6 +278,16 @@ public class ActivityViewJoke extends AppCompatActivity {
 
     }
 
+    void set_exit_flag(){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(SHUTDOWN, SHUTDOWN_FOLD);
+        editor.commit();
+    }
+    void exit_app(){
+        set_exit_flag();
+        finish();
+
+    }
 
 
     @Override
@@ -325,13 +362,36 @@ public class ActivityViewJoke extends AppCompatActivity {
         return true;
     }
 
+    void create_exit_dialog(){
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ActivityViewJoke.this)
+                .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(R.string.exit_alert_dialog_two_buttons_title)
+                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "exit");
+                        exit_app();
+					/* User clicked OK so do some stuff */
+                    }
+                })
+                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "do nothing");
+
+					/* User clicked Cancel so do some stuff */
+                    }
+                });
+        Dialog saveJokeDialog = builder.create();
+        saveJokeDialog.show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
 
-            case R.id.item_Exit:
+            case R.id.item_Exit2:
                 Toast.makeText(this, "Exit app!!!!", Toast.LENGTH_SHORT).show();
+                create_exit_dialog();
                 return true;
             // background color change
             case R.id.item_bg_blue2:
