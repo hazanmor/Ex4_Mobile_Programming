@@ -31,7 +31,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                android:onClick="EnableEditJoke"
+                android:onClick="enable_edit_joke"
                 android:id="@+id/button_edit_joke" />
         </RelativeLayout>
 

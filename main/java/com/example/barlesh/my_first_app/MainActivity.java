@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     // defines
     // inter activities deffines
     private static final String LAST_VIEW = "last_view";
+
     private static final String BG_MAIN = "background";
     private static final String BG_BLUE = "bg_blue";
     private static final String BG_GREEN = "bg_green";
@@ -121,6 +122,12 @@ public class MainActivity extends AppCompatActivity {
 
     public final static String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     //public final static String EXTRA_MESSAGE2 = "com.example.myfirstapp.MESSAGE2";
+
+
+
+    /********************************************************************************
+     * Life Cycle function ( interface of AppCompactActivity)
+     *******************************************************************************/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // init
@@ -135,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
          * set list of jikes
          */
         jokes = new ArrayList<Joke>();
+        /*for (int i=0; i< 11; i++){
+            jokes.add(new Joke("joke number" + i, "Bar", "12.12.12"));
+        }*/
         //jokes.add(new Joke("joke number1", "Bar", "12.12.12"));
         /*jokes.add(new Joke("Q: Why was the math book sad? A: Because it had too many problems. \n" +
                 "\n" , "anat", "12.12.12"));*/
@@ -164,50 +174,99 @@ public class MainActivity extends AppCompatActivity {
         // set current view at sharedreferances
         set_last_view();
 
+    }
 
 
 
-        // Add Joke Butten
-        // take us to add joke activity
-        // no information provided
-        /*Button customList = (Button)findViewById(R.id.buttonToAddJoke);
-        customList.setOnClickListener(new View.OnClickListener() {
+    @Override
+    protected void onResume(){
+        super.onResume();
 
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ActivityAddJoke.class);
+        // get SHUTDOWN flag, if deffined FOLD, close mainActivity
+        String shutown = sharedpreferences.getString(SHUTDOWN, null);
+        if( shutown != null && ( shutown.compareTo(SHUTDOWN_FOLD) ==0 ) ){
+            // reset flag
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putString(SHUTDOWN, null);
+            editor.commit();
 
-                startActivity(intent);
+            finish();
+        }
+
+
+        String lastView = sharedpreferences.getString(LAST_VIEW, null);
+        Log.d(TAG ,"onResume()");
+        Log.d(TAG ,"last view was:" + lastView);
+        // came from add joke activity
+        if( lastView.compareTo(ACTIVITY_ADD) == 0){
+            final String Joke = sharedpreferences.getString(ACTADD_TO_ACTMAIN_JOKE, null);
+            final String Author = sharedpreferences.getString(ACTADD_TO_ACTMAIN_AUTHOR, null);
+            final String Date = sharedpreferences.getString(ACTADD_TO_ACTMAIN_DATE, null);
+
+            if( Joke == null || Author == null || Date == null){
+                // bad joke, didnt get all info TODO
+
+                // all strings were given
+            }else{
+                Log.d(TAG, "adding joke");
+                jokes.add(new Joke(Joke, Author, Date));
+                Log.d(TAG, "before printing to screeen");
+                print_jokes_to_screen();
+                reset_add_params();
             }
-        });*/
+
+            // came from view/edit activity
+        }else if(lastView.compareTo(ACTIVITY_VIEW) == 0){
+            Log.d(TAG ,"inside dealing return from activity voew:" + lastView);
+            final String J = sharedpreferences.getString(ACTVIEW_TO_ACTMAIN_JOKE, "none");
+            final String L = sharedpreferences.getString(ACTVIEW_TO_ACTMAIN_LIKE, "none");
+            final String POS = sharedpreferences.getString(ACTMAIN_ACTVIEW_POS, "none");
+            int poss = Integer.parseInt(POS);
+
+            // case activity view sent us edited data
+            if( J.compareTo("none") !=0 && L.compareTo("none") !=0){
+                Log.d(TAG ,"got Joke:" + J + "\nand Like:" + L);
+                jokes.get(poss).set_joke(J);
+                jokes.get(poss).set_like(L);
+
+
+                reset_edit_params();
+                print_jokes_to_screen();
+            }
+
+        }
+
+        set_last_view();
+
+        // set text at top of screen
+        set_main_text();
 
 
     }
 
-    void exit_app(){
-        reset_exit_flag();
-        finish();
 
-    }
 
-    void reset_exit_flag(){
-        // set sutdown flag to no
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(SHUTDOWN, SHUTDOWN_REG_RUN);
-        editor.commit();
-    }
+    /********************************************************************************
+     * internal functions
+     *******************************************************************************/
 
+
+    /**
+     * change background of activity.
+     * set bg param at sharedpreferences
+     * then call function to set bg according to param at sharedpreferences
+     * @param BG_STR
+     */
     public void change_background(String BG_STR){
         set_background(BG_STR);
         print_background();
     }
 
-    public void set_background(String BG_STR){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(BG_MAIN, BG_STR);
-        editor.commit();
-    }
 
-
+    /**
+     * change view's bg color
+     * get Prime LinearLayout, and set it bg color according to value set at sharedpreferences
+     */
     public void print_background(){
         LinearLayout LL = (LinearLayout)findViewById(R.id.main_layout);;
         String bg = sharedpreferences.getString(BG_MAIN, null);
@@ -220,20 +279,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //super.onCreateOptionsMenu(menu);
-
-        // Hold on to this
-        mMenu = menu;
-
-        // Inflate the currently selected menu XML resource.
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_full, mMenu);
-
-        return true;
-    }
-
+    /**
+     * create dialog when user click exit butten.
+     * exit app if dialog returned positive answer, continue if negative
+     */
     void create_exit_dialog(){
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this)
                 .setIcon(R.drawable.alert_dialog_icon)
@@ -255,6 +304,148 @@ public class MainActivity extends AppCompatActivity {
         Dialog saveJokeDialog = builder.create();
         saveJokeDialog.show();
     }
+
+
+    /**
+     * convert jokes array into
+     */
+    void print_jokes_to_screen(){
+        TextView tv;
+        if ( jokes.size() == 0 ){
+            tv = (TextView)findViewById(R.id.main_act_text);
+            tv.setText(R.string.no_jokes);
+        }else {
+            tv = (TextView)findViewById(R.id.main_act_text);
+            Log.d(TAG,"jokes.size > 0");
+            tv.setText(R.string.info);
+        }
+        mainAdapter.notifyDataSetChanged();
+        //mainAdapter.setNotifyOnChange(true);
+        //CustomAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
+        //lv.setAdapter(mainAdapter);
+    }
+
+    /**
+     * set Activities-shared parameter last view to be current view (Activity)
+     */
+    void set_last_view(){
+
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(LAST_VIEW, ACTIVITY_MAIN);
+        editor.commit();
+    }
+
+    /**
+     *  set text at head of Activity View, according to jokes array size
+     */
+    void set_main_text(){
+        TextView TV = (TextView) findViewById(R.id.main_act_text);
+        if (jokes.size() == 0){
+            TV.setText(getResources().getString(R.string.no_jokes));
+        }else{
+            TV.setText(R.string.info);
+        }
+
+    }
+
+    /**
+     * set Activity's parameter (at sharedpreferences) of bg color according to given string
+     */
+    public void set_background(String BG_STR){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(BG_MAIN, BG_STR);
+        editor.commit();
+    }
+
+    /**
+     * reset parameters incoming from edit/view Activity, so next time we wont get irrelevant data
+     */
+    public void reset_edit_params(){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ACTVIEW_TO_ACTMAIN_JOKE, null);
+        editor.commit();
+        editor.putString(ACTVIEW_TO_ACTMAIN_LIKE, null);
+        editor.commit();
+
+    }
+
+    /**
+     * reset parameters incoming from add Activity, so next time we wont get irrelevant data
+     */
+    public void reset_add_params(){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ACTADD_TO_ACTMAIN_JOKE, null);
+        editor.commit();
+        editor.putString(ACTADD_TO_ACTMAIN_AUTHOR, null);
+        editor.commit();
+        editor.putString(ACTADD_TO_ACTMAIN_DATE, null);
+        editor.commit();
+
+    }
+
+    /**
+     * reset exit parameter
+     */
+    void reset_exit_flag(){
+        // set sutdown flag to no
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(SHUTDOWN, SHUTDOWN_REG_RUN);
+        editor.commit();
+    }
+
+    /** exit app.
+     *  reset exit flag of sharedpreferences so next time app will not exit after exemine flag
+      */
+    void exit_app(){
+        reset_exit_flag();
+        finish();
+
+    }
+
+
+
+    /********************************************************************************
+     * Activities transition functions
+     *******************************************************************************/
+
+    public void ToViewJoke(int pos){
+        Intent intent = new Intent(this, ActivityViewJoke.class);
+        // get joke
+        String Joke = jokes.get(pos).get_joke();
+        String Like = jokes.get(pos).get_like();
+
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ACTMAIN_TO_ACTVIEW_JOKE, Joke);
+        editor.commit();
+        editor.putString(ACTMAIN_TO_ACTVIEW_LIKE, Like);
+        editor.commit();
+        editor.putString(ACTMAIN_ACTVIEW_POS, new Integer(pos).toString());
+        editor.commit();
+
+        startActivity(intent);
+    }
+
+    public void TOaddNewJoke(){
+        Intent intent = new Intent(this, ActivityAddJoke.class);
+        startActivity(intent);
+    }
+    public void TOaddNewJoke(View view){
+        Intent intent = new Intent(this, ActivityAddJoke.class);
+        startActivity(intent);
+    }
+
+
+    public void TODeleteJoke(int pos)
+    {
+       jokes.remove(pos);
+        print_jokes_to_screen();
+
+    }
+
+
+    /********************************************************************************
+     * override functions, to handle menus, context menus, dialogs etc...
+     *******************************************************************************/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -320,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
                 inflater.inflate(R.menu.exit_confirm_context_menu, menu);
                 break;
             case android.R.id.list:
-                 inflater.inflate(R.menu.context_menu, menu);
+                inflater.inflate(R.menu.context_menu, menu);
                 break;
         }
 
@@ -343,8 +534,8 @@ public class MainActivity extends AppCompatActivity {
                 ToViewJoke(index);
                 return true;
             case R.id.delete:
-                 info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-                 index = info.position;
+                info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                index = info.position;
                 TODeleteJoke(index);
                 return true;
             case R.id.Exit_confirm:
@@ -359,183 +550,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-
-    public void print_jokes_to_screen(){
-        TextView tv;
-        if ( jokes.size() == 0 ){
-            tv = (TextView)findViewById(R.id.main_act_text);
-            tv.setText(R.string.no_jokes);
-        }else {
-            tv = (TextView)findViewById(R.id.main_act_text);
-            Log.d(TAG,"jokes.size > 0");
-            tv.setText(R.string.info);
-        }
-        mainAdapter.notifyDataSetChanged();
-        //mainAdapter.setNotifyOnChange(true);
-        //CustomAdapter adapter = new CustomAdapter(MainActivity.this, R.layout.list_item_icon, jokes);
-        //lv.setAdapter(mainAdapter);
-    }
-
-
-
-    public void ToViewJoke(int pos){
-        Intent intent = new Intent(this, ActivityViewJoke.class);
-        // get joke
-        String Joke = jokes.get(pos).get_joke();
-        String Like = jokes.get(pos).get_like();
-
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(ACTMAIN_TO_ACTVIEW_JOKE, Joke);
-        editor.commit();
-        editor.putString(ACTMAIN_TO_ACTVIEW_LIKE, Like);
-        editor.commit();
-        editor.putString(ACTMAIN_ACTVIEW_POS, new Integer(pos).toString());
-        editor.commit();
-
-
-
-
-        startActivity(intent);
-    }
-
-    public void TOaddNewJoke(){
-        Intent intent = new Intent(this, ActivityAddJoke.class);
-        startActivity(intent);
-    }
-    public void TOaddNewJoke(View view){
-        Intent intent = new Intent(this, ActivityAddJoke.class);
-        startActivity(intent);
-    }
-
-    public void set_last_view(){
-
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(LAST_VIEW, ACTIVITY_MAIN);
-        editor.commit();
-    }
-    public void TODeleteJoke(int pos)
-    {
-       jokes.remove(pos);
-        print_jokes_to_screen();
-
-    }
-
-    /** Called when the user clicks the Send button */
-    /*public void toActivity2(View view) {
-        Intent intent = new Intent(this, Activity2.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }*/
-
-    /*public void toActivity3(String str) {
-        Intent intent = new Intent(this, Activity3.class);
-        intent.putExtra(EXTRA_MESSAGE, str);
-        startActivity(intent);
-    }*/
-
-
     @Override
-    protected void onResume(){
-        super.onResume();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu);
 
-        // get SHUTDOWN flag, if deffined FOLD, close mainActivity
-            String shutown = sharedpreferences.getString(SHUTDOWN, null);
-            if( shutown != null && ( shutown.compareTo(SHUTDOWN_FOLD) ==0 ) ){
-                // reset flag
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-                editor.putString(SHUTDOWN, null);
-                editor.commit();
+        // Hold on to this
+        mMenu = menu;
 
-                finish();
-            }
+        // Inflate the currently selected menu XML resource.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_full, mMenu);
 
-
-        String lastView = sharedpreferences.getString(LAST_VIEW, null);
-        Log.d(TAG ,"onResume()");
-        Log.d(TAG ,"last view was:" + lastView);
-        // came from add joke activity
-        if( lastView.compareTo(ACTIVITY_ADD) == 0){
-            final String Joke = sharedpreferences.getString(ACTADD_TO_ACTMAIN_JOKE, null);
-            final String Author = sharedpreferences.getString(ACTADD_TO_ACTMAIN_AUTHOR, null);
-            final String Date = sharedpreferences.getString(ACTADD_TO_ACTMAIN_DATE, null);
-
-            if( Joke == null || Author == null || Date == null){
-                // bad joke, didnt get all info TODO
-
-                // all strings were given
-            }else{
-                Log.d(TAG, "adding joke");
-                jokes.add(new Joke(Joke, Author, Date));
-                Log.d(TAG, "before printing to screeen");
-                print_jokes_to_screen();
-                reset_add_params();
-            }
-
-            // came from view/edit activity
-        }else if(lastView.compareTo(ACTIVITY_VIEW) == 0){
-            Log.d(TAG ,"inside dealing return from activity voew:" + lastView);
-            final String J = sharedpreferences.getString(ACTVIEW_TO_ACTMAIN_JOKE, "none");
-            final String L = sharedpreferences.getString(ACTVIEW_TO_ACTMAIN_LIKE, "none");
-            final String POS = sharedpreferences.getString(ACTMAIN_ACTVIEW_POS, "none");
-            int poss = Integer.parseInt(POS);
-
-            // case activity view sent us edited data
-            if( J.compareTo("none") !=0 && L.compareTo("none") !=0){
-                Log.d(TAG ,"got Joke:" + J + "\nand Like:" + L);
-                jokes.get(poss).set_joke(J);
-                jokes.get(poss).set_like(L);
-
-
-                reset_edit_params();
-                print_jokes_to_screen();
-            }
-
-        }
-
-        set_last_view();
-
-        // set text at top of screen
-        set_main_text();
-
-
-    }
-
-    void set_main_text(){
-        TextView TV = (TextView) findViewById(R.id.main_act_text);
-        if (jokes.size() == 0){
-            TV.setText(getResources().getString(R.string.no_jokes));
-        }else{
-            TV.setText("");
-        }
-
-    }
-
-    public void reset_edit_params(){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(ACTVIEW_TO_ACTMAIN_JOKE, null);
-        editor.commit();
-        editor.putString(ACTVIEW_TO_ACTMAIN_LIKE, null);
-        editor.commit();
-
-    }
-
-    public void reset_add_params(){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(ACTADD_TO_ACTMAIN_JOKE, null);
-        editor.commit();
-        editor.putString(ACTADD_TO_ACTMAIN_AUTHOR, null);
-        editor.commit();
-        editor.putString(ACTADD_TO_ACTMAIN_DATE, null);
-        editor.commit();
+        return true;
     }
 
 
 
+
+
+
+
+    /********************************************************************************
+     * Costume Adapter. a class to create adapter instance to pass to list
+     *******************************************************************************/
 
     class CustomAdapter extends ArrayAdapter<Joke> {
 

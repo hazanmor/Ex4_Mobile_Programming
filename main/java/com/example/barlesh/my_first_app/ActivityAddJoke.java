@@ -55,6 +55,12 @@ public class ActivityAddJoke extends AppCompatActivity {
 
     private Menu mMenu;
 
+
+
+    /********************************************************************************
+     * Life Cycle function ( interface of AppCompactActivity)
+     *******************************************************************************/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +85,10 @@ public class ActivityAddJoke extends AppCompatActivity {
 
     }
 
+
+    /**
+     * Dialog creation functions
+     */
 
     void create_edit_warning_dialog(){
         Dialog dialog = new Dialog(ActivityAddJoke.this);
@@ -114,31 +124,30 @@ public class ActivityAddJoke extends AppCompatActivity {
     }
 
 
-    /**
-     * TODOOOOO
-     * @param menu
-     * @param v
-     * @param menuInfo
-     */
-    // take care of all context view registered for currrent activity
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        Log.d(TAG,"onCreateContextMenu");
-        super.onCreateContextMenu(menu, v, menuInfo);
-        Log.d(TAG, "onCreateContextMenu, view is:" + v.toString());
+    void create_exit_dialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ActivityAddJoke.this)
+                .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(R.string.edit_alert_dialog_two_buttons_title)
+                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        sendJoke();
+					/* User clicked OK so do some stuff */
+                    }
+                })
+                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "do nothing");
+                        exit_app();
 
-        MenuInflater inflater = getMenuInflater();
-        switch (v.getId() ){
-            case R.id.fake_button:
-                Log.d(TAG, "onCreateContextMenu: fake_button");
-                inflater.inflate(R.menu.exit_confirm_context_menu, menu);
-                break;
-            case android.R.id.list:
-                inflater.inflate(R.menu.context_menu, menu);
-                break;
-        }
-
+					/* User clicked Cancel so do some stuff */
+                    }
+                });
+        Dialog saveJokeDialog = builder.create();
+        saveJokeDialog.show();
     }
+
+
+
 
 
 
@@ -171,11 +180,13 @@ public class ActivityAddJoke extends AppCompatActivity {
 
     }
 
-    public void set_last_view(){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(LAST_VIEW, ACTIVITY_ADD);
-        editor.commit();
-    }
+
+
+
+    /**
+     * Activities Exit behaviour
+     */
+
 
     void set_exit_flag(){
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -188,20 +199,17 @@ public class ActivityAddJoke extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //super.onCreateOptionsMenu(menu);
 
-        // Hold on to this
-        mMenu = menu;
-
-        // Inflate the currently selected menu XML resource.
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_partial, mMenu);
-
-        return true;
+    public void set_last_view(){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(LAST_VIEW, ACTIVITY_ADD);
+        editor.commit();
     }
 
+    
+    /**
+     * app view's background functions
+     */
 
     public void change_background(String BG_STR){
         set_background(BG_STR);
@@ -226,27 +234,23 @@ public class ActivityAddJoke extends AppCompatActivity {
 
     }
 
-    void create_exit_dialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(ActivityAddJoke.this)
-                .setIcon(R.drawable.alert_dialog_icon)
-                .setTitle(R.string.edit_alert_dialog_two_buttons_title)
-                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        sendJoke();
-					/* User clicked OK so do some stuff */
-                    }
-                })
-                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Log.d(TAG, "do nothing");
-                        finish();
 
-					/* User clicked Cancel so do some stuff */
-                    }
-                });
-        Dialog saveJokeDialog = builder.create();
-        saveJokeDialog.show();
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu);
+
+        // Hold on to this
+        mMenu = menu;
+
+        // Inflate the currently selected menu XML resource.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_partial, mMenu);
+
+        return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -285,39 +289,30 @@ public class ActivityAddJoke extends AppCompatActivity {
     }
 
 
+    /**
+     * TODOOOOO
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
+    // take care of all context view registered for currrent activity
     @Override
-    protected void onStart(){
-        super.onStart();
-        Log.d(TAG ,"onStart()");
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        Log.d(TAG,"onCreateContextMenu");
+        super.onCreateContextMenu(menu, v, menuInfo);
+        Log.d(TAG, "onCreateContextMenu, view is:" + v.toString());
+
+        MenuInflater inflater = getMenuInflater();
+        switch (v.getId() ){
+            case R.id.fake_button:
+                Log.d(TAG, "onCreateContextMenu: fake_button");
+                inflater.inflate(R.menu.exit_confirm_context_menu, menu);
+                break;
+            case android.R.id.list:
+                inflater.inflate(R.menu.context_menu, menu);
+                break;
+        }
+
     }
 
-    @Override
-    protected void onRestart(){
-        super.onRestart();
-        Log.d(TAG ,"onRestart()");
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.d(TAG ,"onResume()");
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        Log.d(TAG ,"onPause()");
-    }
-
-    @Override
-    protected void onStop(){
-        super.onStop();
-        Log.d(TAG ,"onStop()");
-    }
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        Log.d(TAG ,"onDestroy()");
-    }
 }

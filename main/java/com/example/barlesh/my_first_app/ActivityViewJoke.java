@@ -62,6 +62,9 @@ public class ActivityViewJoke extends AppCompatActivity {
 
     private static final String TAG = "Activity2";
 
+    /********************************************************************************
+     * Life Cycle function ( interface of AppCompactActivity)
+     *******************************************************************************/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +111,15 @@ public class ActivityViewJoke extends AppCompatActivity {
 
     }
 
+
+    /********************************************************************************
+     * internal functions
+     *******************************************************************************/
+
+    /**
+     * Dialog creation functions
+     */
+
     void create_edit_warning_dialog(){
         Dialog dialog = new Dialog(ActivityViewJoke.this);
         dialog.setContentView(R.layout.custom_dialog);
@@ -125,7 +137,7 @@ public class ActivityViewJoke extends AppCompatActivity {
                 .setTitle(R.string.edit_alert_dialog_two_buttons_title)
                 .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        EditJoke();
+                        edit_joke();
 					/* User clicked OK so do some stuff */
                     }
                 })
@@ -141,42 +153,45 @@ public class ActivityViewJoke extends AppCompatActivity {
         saveJokeDialog.show();
     }
 
-    /**
-     * TODOOOOO
-     * @param menu
-     * @param v
-     * @param menuInfo
-     */
-    // take care of all context view registered for currrent activity
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        Log.d(TAG,"onCreateContextMenu");
-        super.onCreateContextMenu(menu, v, menuInfo);
-        Log.d(TAG, "onCreateContextMenu, view is:" + v.toString());
 
-        MenuInflater inflater = getMenuInflater();
-        switch (v.getId() ){
-            case R.id.fake_button:
-                Log.d(TAG, "onCreateContextMenu: fake_button");
-                inflater.inflate(R.menu.exit_confirm_context_menu, menu);
-                break;
-            case android.R.id.list:
-                inflater.inflate(R.menu.context_menu, menu);
-                break;
-        }
+    void create_exit_dialog(){
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ActivityViewJoke.this)
+                .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(R.string.exit_alert_dialog_two_buttons_title)
+                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "exit");
+                        exit_app();
+					/* User clicked OK so do some stuff */
+                    }
+                })
+                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.d(TAG, "do nothing");
 
+					/* User clicked Cancel so do some stuff */
+                    }
+                });
+        Dialog saveJokeDialog = builder.create();
+        saveJokeDialog.show();
     }
 
 
+    /**
+     * edit joke internal functions
+     */
+    
 
 
-    public void EnableEditJoke(View view){
+    public void enable_edit_joke(View view){
         EditText editText = (EditText) findViewById(R.id.ShowJoke);
         editText.setEnabled(true);
     }
 
+
+
     // once edit buttec clicked, send eddited data back to main activity
-    public void EditJoke(){
+    public void edit_joke(){
         EditText editText = (EditText) findViewById(R.id.ShowJoke);
         String J = editText.getText().toString();
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -193,7 +208,9 @@ public class ActivityViewJoke extends AppCompatActivity {
     }
 
 
-
+    /**
+     * edit Like internal functions
+     */
 
     public void clickedDisLike(View view){
         set_like(L_DISLIKE);
@@ -247,25 +264,21 @@ public class ActivityViewJoke extends AppCompatActivity {
 
     }
 
-    public void set_last_view(){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(LAST_VIEW, ACTIVITY_VIEW);
-        editor.commit();
-    }
 
 
+
+
+
+
+
+    /**
+     * app view's background functions
+     */
 
     public void change_background(String BG_STR){
         set_background(BG_STR);
         print_background();
     }
-
-    public void set_background(String BG_STR){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(BG_VIEW, BG_STR);
-        editor.commit();
-    }
-
 
     public void print_background(){
         LinearLayout LL = (LinearLayout)findViewById(R.id.view_layout);;
@@ -278,66 +291,37 @@ public class ActivityViewJoke extends AppCompatActivity {
 
     }
 
+    public void set_background(String BG_STR){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(BG_VIEW, BG_STR);
+        editor.commit();
+    }
+
+
+    /**
+     * Activities Exit behaviour
+     */
+
+
     void set_exit_flag(){
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(SHUTDOWN, SHUTDOWN_FOLD);
         editor.commit();
     }
+
+
     void exit_app(){
         set_exit_flag();
         finish();
 
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "onRestart()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume()");
-
-       /* sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        String str = sharedpreferences.getString(ShutDown, null);
-        if (str != null && (str.compareTo("CloseApp") == 0)) {
-            finish();
-        }*/
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause()");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        /*Log.d(TAG, "onStop()");
-        //save entered text at sharedPrefences
-        EditText editText = (EditText) findViewById(R.id.edit_message2);
-        String str = editText.getText().toString();
-        Log.d(TAG, "str is:" + str);
+    public void set_last_view(){
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString("view_2_pass_string", str);
-        editor.commit();*/
-
+        editor.putString(LAST_VIEW, ACTIVITY_VIEW);
+        editor.commit();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
 
     void reset_shared_params(){
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -348,41 +332,11 @@ public class ActivityViewJoke extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //super.onCreateOptionsMenu(menu);
+    /**
+     * interactive items & context of menu functions
+     */
 
-        // Hold on to this
-        mMenu = menu;
 
-        // Inflate the currently selected menu XML resource.
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_partial, mMenu);
-
-        return true;
-    }
-
-    void create_exit_dialog(){
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ActivityViewJoke.this)
-                .setIcon(R.drawable.alert_dialog_icon)
-                .setTitle(R.string.exit_alert_dialog_two_buttons_title)
-                .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Log.d(TAG, "exit");
-                        exit_app();
-					/* User clicked OK so do some stuff */
-                    }
-                })
-                .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Log.d(TAG, "do nothing");
-
-					/* User clicked Cancel so do some stuff */
-                    }
-                });
-        Dialog saveJokeDialog = builder.create();
-        saveJokeDialog.show();
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -419,6 +373,49 @@ public class ActivityViewJoke extends AppCompatActivity {
 
         return false;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu);
+
+        // Hold on to this
+        mMenu = menu;
+
+        // Inflate the currently selected menu XML resource.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_partial, mMenu);
+
+        return true;
+    }
+
+
+    /**
+     * TODOOOOO
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
+    // take care of all context view registered for currrent activity
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        Log.d(TAG,"onCreateContextMenu");
+        super.onCreateContextMenu(menu, v, menuInfo);
+        Log.d(TAG, "onCreateContextMenu, view is:" + v.toString());
+
+        MenuInflater inflater = getMenuInflater();
+        switch (v.getId() ){
+            case R.id.fake_button:
+                Log.d(TAG, "onCreateContextMenu: fake_button");
+                inflater.inflate(R.menu.exit_confirm_context_menu, menu);
+                break;
+            case android.R.id.list:
+                inflater.inflate(R.menu.context_menu, menu);
+                break;
+        }
+
+    }
+
+
 
 
     //** Called when the user clicks the Send button */
